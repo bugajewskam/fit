@@ -11,9 +11,11 @@ import Typography from "@mui/material/Typography";
 import CloseIcon from "@mui/icons-material/Close";
 import { ChangeEvent, SyntheticEvent, useEffect, useState } from "react";
 
-import { IWorkout } from "../pages/index";
-import { TextField } from "@mui/material";
+import { IWorkout, IWorkoutsType } from "../pages/index";
+import { Card, Container, Grid, TextField } from "@mui/material";
 import produce from "immer";
+import Filter from "./filter";
+import DateInput from "./date-input";
 
 interface IWorkoutDialogProps {
   workout: IWorkout;
@@ -28,6 +30,7 @@ export default function WorkoutDialog({
   save,
 }: IWorkoutDialogProps) {
   const [item, setItem] = useState<IWorkout | null>(null);
+
   useEffect(() => setItem(workout), [workout]);
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItem(
@@ -39,20 +42,35 @@ export default function WorkoutDialog({
   const handleDurationChange = (e: ChangeEvent<HTMLInputElement>) => {
     setItem(
       produce((draft) => {
-        draft!.duration = e.target.value;
+        draft!.duration = Number(e.target.value);
       })
     );
   };
-  const handleDateChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleDateChange = (date: moment.Moment) => {
     setItem(
       produce((draft) => {
-        draft!.date = e.target.value;
+        draft!.data = date.format("YYYY-MM-DD");
+      })
+    );
+  };
+  const handleTypeChange = (type: IWorkoutsType) => {
+    setItem(
+      produce((draft) => {
+        draft!.type = type;
+      })
+    );
+  };
+  const handleDescriptionChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setItem(
+      produce((draft) => {
+        draft!.description = e.target.value;
       })
     );
   };
   if (item === null) {
     return <></>;
   }
+
   return (
     <Dialog fullScreen open onClose={close}>
       <AppBar sx={{ position: "relative" }}>
@@ -78,9 +96,34 @@ export default function WorkoutDialog({
           </Button>
         </Toolbar>
       </AppBar>
-      <TextField value={item.title} onChange={handleTitleChange} />
-      <TextField value={item.date} onChange={handleDateChange} />
-      <TextField value={item.duration} onChange={handleDurationChange} />
+      <Filter value={item.type} onTabChange={handleTypeChange} />
+      <Container maxWidth="sm">
+        <Grid container sx={{ gap: 4, padding: 4 }}>
+          <TextField
+            label="Title"
+            fullWidth
+            value={item.title}
+            onChange={handleTitleChange}
+          />
+          <DateInput date={item.data} handleChange={handleDateChange} />
+          {/* <TextField fullWidth value={item.date} onChange={handleDateChange} /> */}
+          <TextField
+            fullWidth
+            value={item.duration}
+            label="Duration"
+            onChange={handleDurationChange}
+          />
+          <TextField
+            id="outlined-multiline-static"
+            fullWidth
+            multiline
+            rows={6}
+            label="Description"
+            value={item.description}
+            onChange={handleDescriptionChange}
+          />
+        </Grid>
+      </Container>
     </Dialog>
   );
 }
