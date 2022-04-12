@@ -2,7 +2,7 @@ import produce from "immer";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import WorkoutDialog from "../components/workout-dialog";
 import styles from "../styles/Home.module.css";
 
@@ -87,6 +87,15 @@ const Home: NextPage = () => {
   const [isLoading, setLoading] = useState<boolean>(false);
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [dialogWorkout, setDialogWorkout] = useState<IWorkout | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    api
+      .list()
+      .then((items) => setWorkouts(items))
+      .finally(() => setLoading(false));
+  }, []);
+
   const handleDetail = (workout: IWorkout) => () => {
     setDialogOpen(true);
     setDialogWorkout(workout);
@@ -135,6 +144,8 @@ const Home: NextPage = () => {
 
   return (
     <>
+    {workouts.map((item)=>
+    <div>{item.title}</div>)}
 
         <button onClick={handleAdd}> Add </button>
         {isDialogOpen && dialogWorkout && (
