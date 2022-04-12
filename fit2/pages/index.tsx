@@ -1,18 +1,39 @@
-import { CircularProgress, Container, Fab, List, ListItem, ListItemButton, ListItemText } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  CircularProgress,
+  Container,
+  Divider,
+  Fab,
+  IconButton,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemButton,
+  ListItemText,
+} from "@mui/material";
 import produce from "immer";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import WorkoutDialog from "../components/workout-dialog";
 import styles from "../styles/Home.module.css";
-import AddIcon from '@mui/icons-material/Add'
-export type IWorkoutsType = 'Cardio' | 'Cycling' | 'Running' | 'General';
+import AddIcon from "@mui/icons-material/Add";
+import DirectionsBikeIcon from "@mui/icons-material/DirectionsBike";
+import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
+import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
+import Example from "../components/pie-chart";
+import PieGraph from "../components/pie-chart";
+export type IWorkoutsType = "Cardio" | "Cycling" | "Running" | "General";
 export interface IWorkout {
   id?: number;
   title: string;
   duration: number;
-  date: string;
+  description: string;
+  type: IWorkoutsType;
+  // Typo in API
+  data: string;
 }
 
 export interface IUser {
@@ -23,44 +44,86 @@ export interface IUser {
   height?: number;
 }
 
+const iconsMapping = {
+  Cycling: <DirectionsBikeIcon />,
+  Running: <DirectionsRunIcon />,
+  Cardio: <FitnessCenterIcon />,
+};
+
+export const colorsMapping = {
+  Cycling: '#0088FE',
+  Running: '#00C49F',
+  Cardio: '#FFBB28'
+}
+
 interface IWorkoutApi {
   list: () => Promise<IWorkout[]>;
   create: (workout: IWorkout) => Promise<IWorkout>;
   update: (workout: IWorkout) => Promise<IWorkout>;
   delete: (workout: IWorkout) => Promise<void>;
 }
-// class API implements IApi {
-// 	async list(){
-// 		return await(await(fetch('/workouts/'))).json();
-// 	}
+const postJson = (url: string, method: string, data: any) => {
+  return fetch(url, {body: JSON.stringify(data), method, headers: {
+    'Content-Type':'application/json'
+  }});
+}
+class API implements IWorkoutApi {
+  async list() {
+    return await (await fetch("/workouts/")).json();
+  }
 
-// 	async delete(workout:IWorkout){
-// 		const result = await(fetch(`/workouts/${workout.id}`, method: 'DELETE'));
+  async delete(workout: IWorkout) {
+    const result = await fetch(`/workouts/${workout.id}`, { method: "DELETE" });
+  }
 
-// 	}
+  async update(workout: IWorkout) {
+    const newWorkout = await postJson(`/workouts/${workout.id}`, "PATCH", workout);
+    return workout;
+  }
 
-// 	async update(workout:IWorkout){
-// 		const newWorkout = await(await(fetch(`/workouts/${workout.id}`,
-//     method: 'POST',
-//     body: JSON.toJSON(workout))).json());
-// 		return newWorkout;
-// 	}
-
-// 	async create(workout:IWorkout){
-// 		const newWorkout = await(await(fetch(`/workouts/`, method: 'POST', body: JSON.toJSON(workout))));
-// 		return newWorkout;
-// 	}
-// }
+  async create(workout: IWorkout) {
+    const newWorkout = await (await postJson(`/workouts/`, "POST", workout)).json();
+    return newWorkout;
+  }
+}
 
 class DummyApi implements IWorkoutApi {
   state: IWorkout[];
   constructor() {
     // przykłądowe treningi
     this.state = [
-      { id: 234, title: "helps", duration: 34, date: "2022-04-11" },
-      { id: 245, title: "Krustain", duration: 34, date: "2022-04-11" },
-      { id: 235, title: "Monika", duration: 34, date: "2022-04-11" },
-      { id: 215, title: "Michał", duration: 34, date: "2022-04-11" },
+      {
+        id: 234,
+        title: "helps",
+        duration: 34,
+        data: "2022-04-11",
+        description: "jnei fu udwqwubcubuqud",
+        type: "Cardio",
+      },
+      {
+        id: 245,
+        title: "Krustain",
+        duration: 34,
+        data: "2022-04-11",
+        description: "jnei fu udwqwubcubuqud",
+        type: "Running",
+      },
+      {
+        id: 235,
+        title: "Monika",
+        duration: 34,
+        data: "2022-04-11",
+        description: "jnei fu udwqwubcubuqud",
+        type: "Cardio",
+      },
+      {
+        id: 215,
+        title: "Michał",
+        duration: 34,
+        data: "2022-04-11",
+        description: "jnei fu udwqwubcubuqud",
+        type: "Running",
+      },
     ];
   }
   list(): Promise<IWorkout[]> {
@@ -83,7 +146,7 @@ class DummyApi implements IWorkoutApi {
     return Promise.resolve();
   }
 }
-const api = new DummyApi();
+const api = new API();
 const Home: NextPage = () => {
   const [workouts, setWorkouts] = useState<IWorkout[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
@@ -107,7 +170,13 @@ const Home: NextPage = () => {
     setDialogWorkout(null);
   };
   const handleAdd = () => {
-    handleDetail({ title: "", date: "", duration: 0 })();
+    handleDetail({
+      title: "",
+      data: "",
+      duration: 0,
+      description: "",
+      type: "Cardio",
+    })();
   };
   const handleSave = (workout: IWorkout) => {
     if (workout.id) {
@@ -144,32 +213,63 @@ const Home: NextPage = () => {
     });
   };
 
+  const graphData = useMemo(()=>{
+    const countByType = workouts.reduce((dict: { [k: string]: number }, workout)=>{
+        dict[workout.type] = (dict[workout.type] || 0) + 1;
+        return dict;
+    }, {});
+    // workouts.reduce((sum: number, workout)=> sum + workout.duration, 0);
+    return Object.entries(countByType).map(([name,value])=>({name, value}));
+  }, [workouts])
+
   return (
-  <> <Container maxWidth="sm">
+    <Container maxWidth="sm">
+      <Box sx={{width:"100%", height: 260}}>
+        <PieGraph data={graphData}/>
+      </Box>
       {isLoading && <CircularProgress />}
-      {!isLoading && 
-        <><List sx={{ width: "100%" }}>
+      {!isLoading && (
+        <List sx={{ width: "100%" }}>
           {workouts.map((item) => (
-            <ListItem key={item.id} disablePadding>
-              <ListItemButton onClick={handleDetail(item)}>
-                <ListItemText primary={item.title} />
-              </ListItemButton>
-            </ListItem>
+            // <ListItem key={item.id} disablePadding>
+            //   <ListItemButton onClick={handleDetail(item)}>
+            //     <ListItemText primary={item.title} />
+            //   </ListItemButton>
+            // </ListItem>
+            <>
+              <ListItem key={item.duration}>
+                <ListItemButton onClick={handleDetail(item)}>
+                  <>
+                    <ListItemAvatar>
+                      <Avatar sx={{background: colorsMapping[item.type]}}>{iconsMapping[item.type]}</Avatar>
+                    </ListItemAvatar>
+                  </>
+                  <ListItemText primary={item.title} secondary={item.data} />
+                </ListItemButton>
+              </ListItem>
+              <Divider variant="inset" component="li" />
+            </>
           ))}
-        </List></>}
-        <Fab color="primary" aria-label="add" sx={{position: "fixed", bottom:16, right:16}} onClick={handleAdd}>
+        </List>
+      )}
+      <Fab
+        color="primary"
+        aria-label="add"
+        sx={{ position: "fixed", bottom: 16, right: 16 }}
+        onClick={handleAdd}
+      >
         <AddIcon />
       </Fab>
 
-        {isDialogOpen && dialogWorkout && (
+      {isDialogOpen && dialogWorkout && (
         <WorkoutDialog
           workout={dialogWorkout}
           save={handleSave}
           remove={handleRemove}
           close={handleClose}
-        />)}
-        </Container></>
-
+        />
+      )}
+    </Container>
   );
 };
 
