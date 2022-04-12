@@ -1,3 +1,4 @@
+import { CircularProgress, Container, Fab, List, ListItem, ListItemButton, ListItemText } from "@mui/material";
 import produce from "immer";
 import type { NextPage } from "next";
 import Head from "next/head";
@@ -5,11 +6,12 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import WorkoutDialog from "../components/workout-dialog";
 import styles from "../styles/Home.module.css";
-
+import AddIcon from '@mui/icons-material/Add'
+export type IWorkoutsType = 'Cardio' | 'Cycling' | 'Running' | 'General';
 export interface IWorkout {
   id?: number;
   title: string;
-  duration: string;
+  duration: number;
   date: string;
 }
 
@@ -55,10 +57,10 @@ class DummyApi implements IWorkoutApi {
   constructor() {
     // przykłądowe treningi
     this.state = [
-      { id: 234, title: "helps", duration: "34", date: "2022-04-11" },
-      { id: 245, title: "Krustain", duration: "34", date: "2022-04-11" },
-      { id: 235, title: "Monika", duration: "34", date: "2022-04-11" },
-      { id: 215, title: "Michał", duration: "34", date: "2022-04-11" },
+      { id: 234, title: "helps", duration: 34, date: "2022-04-11" },
+      { id: 245, title: "Krustain", duration: 34, date: "2022-04-11" },
+      { id: 235, title: "Monika", duration: 34, date: "2022-04-11" },
+      { id: 215, title: "Michał", duration: 34, date: "2022-04-11" },
     ];
   }
   list(): Promise<IWorkout[]> {
@@ -105,7 +107,7 @@ const Home: NextPage = () => {
     setDialogWorkout(null);
   };
   const handleAdd = () => {
-    handleDetail({ title: "", date: "", duration: "0" })();
+    handleDetail({ title: "", date: "", duration: 0 })();
   };
   const handleSave = (workout: IWorkout) => {
     if (workout.id) {
@@ -143,11 +145,22 @@ const Home: NextPage = () => {
   };
 
   return (
-    <>
-    {workouts.map((item)=>
-    <div>{item.title}</div>)}
+  <> <Container maxWidth="sm">
+      {isLoading && <CircularProgress />}
+      {!isLoading && 
+        <><List sx={{ width: "100%" }}>
+          {workouts.map((item) => (
+            <ListItem key={item.id} disablePadding>
+              <ListItemButton onClick={handleDetail(item)}>
+                <ListItemText primary={item.title} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List></>}
+        <Fab color="primary" aria-label="add" sx={{position: "fixed", bottom:16, right:16}} onClick={handleAdd}>
+        <AddIcon />
+      </Fab>
 
-        <button onClick={handleAdd}> Add </button>
         {isDialogOpen && dialogWorkout && (
         <WorkoutDialog
           workout={dialogWorkout}
@@ -155,7 +168,8 @@ const Home: NextPage = () => {
           remove={handleRemove}
           close={handleClose}
         />)}
-    </>
+        </Container></>
+
   );
 };
 
