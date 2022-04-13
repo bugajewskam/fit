@@ -25,24 +25,10 @@ import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
 import Example from "../components/pie-chart";
 import PieGraph from "../components/pie-chart";
-export type IWorkoutsType = "Cardio" | "Cycling" | "Running" | "General";
-export interface IWorkout {
-  id?: number;
-  title: string;
-  duration: number;
-  description: string;
-  type: IWorkoutsType;
-  // Typo in API
-  data: string;
-}
-
-export interface IUser {
-  id: number;
-  name: string;
-  email: string;
-  weight: number;
-  height?: number;
-}
+import Menu from "../components/app-bar";
+import moment from "moment";
+import { IWorkout } from "../interface/interface";
+import Stats from "../components/stats";
 
 const iconsMapping = {
   Cycling: <DirectionsBikeIcon />,
@@ -51,10 +37,10 @@ const iconsMapping = {
 };
 
 export const colorsMapping = {
-  Cycling: '#0088FE',
-  Running: '#00C49F',
-  Cardio: '#FFBB28'
-}
+  Cycling: "#0088FE",
+  Running: "#00C49F",
+  Cardio: "#FFBB28",
+};
 
 interface IWorkoutApi {
   list: () => Promise<IWorkout[]>;
@@ -63,10 +49,14 @@ interface IWorkoutApi {
   delete: (workout: IWorkout) => Promise<void>;
 }
 const postJson = (url: string, method: string, data: any) => {
-  return fetch(url, {body: JSON.stringify(data), method, headers: {
-    'Content-Type':'application/json'
-  }});
-}
+  return fetch(url, {
+    body: JSON.stringify(data),
+    method,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+};
 class API implements IWorkoutApi {
   async list() {
     return await (await fetch("/workouts/")).json();
@@ -77,82 +67,29 @@ class API implements IWorkoutApi {
   }
 
   async update(workout: IWorkout) {
-    const newWorkout = await postJson(`/workouts/${workout.id}`, "PATCH", workout);
+    const newWorkout = await postJson(
+      `/workouts/${workout.id}`,
+      "PATCH",
+      workout
+    );
     return workout;
   }
 
   async create(workout: IWorkout) {
-    const newWorkout = await (await postJson(`/workouts/`, "POST", workout)).json();
+    const newWorkout = await (
+      await postJson(`/workouts/`, "POST", workout)
+    ).json();
     return newWorkout;
   }
 }
 
-class DummyApi implements IWorkoutApi {
-  state: IWorkout[];
-  constructor() {
-    // przykłądowe treningi
-    this.state = [
-      {
-        id: 234,
-        title: "helps",
-        duration: 34,
-        data: "2022-04-11",
-        description: "jnei fu udwqwubcubuqud",
-        type: "Cardio",
-      },
-      {
-        id: 245,
-        title: "Krustain",
-        duration: 34,
-        data: "2022-04-11",
-        description: "jnei fu udwqwubcubuqud",
-        type: "Running",
-      },
-      {
-        id: 235,
-        title: "Monika",
-        duration: 34,
-        data: "2022-04-11",
-        description: "jnei fu udwqwubcubuqud",
-        type: "Cardio",
-      },
-      {
-        id: 215,
-        title: "Michał",
-        duration: 34,
-        data: "2022-04-11",
-        description: "jnei fu udwqwubcubuqud",
-        type: "Running",
-      },
-    ];
-  }
-  list(): Promise<IWorkout[]> {
-    // pozytywnie kończy promisa
-    return Promise.resolve([...this.state]);
-  }
-  create(workout: IWorkout): Promise<IWorkout> {
-    const newItem = { ...workout, id: Math.floor(Math.random() * 100000) };
-    this.state.push(newItem);
-    return Promise.resolve(newItem);
-  }
-  update(workout: IWorkout): Promise<IWorkout> {
-    const index = this.state.findIndex((item) => item.id === workout.id);
-    this.state[index] = { ...workout };
-    return Promise.resolve(workout);
-  }
-  delete(workout: IWorkout): Promise<void> {
-    const index = this.state.findIndex((item) => item.id === workout.id);
-    this.state.splice(index, 1);
-    return Promise.resolve();
-  }
-}
 const api = new API();
 const Home: NextPage = () => {
   const [workouts, setWorkouts] = useState<IWorkout[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [dialogWorkout, setDialogWorkout] = useState<IWorkout | null>(null);
-
+  console.log(workouts);
   useEffect(() => {
     setLoading(true);
     api
@@ -172,8 +109,8 @@ const Home: NextPage = () => {
   const handleAdd = () => {
     handleDetail({
       title: "",
-      data: "",
-      duration: 0,
+      data: moment().format("YYYY-MM-DD"),
+      duration: 15,
       description: "",
       type: "Cardio",
     })();
@@ -213,60 +150,59 @@ const Home: NextPage = () => {
     });
   };
 
-  const graphData = useMemo(()=>{
-    const countByType = workouts.reduce((dict: { [k: string]: number }, workout)=>{
-        dict[workout.type] = (dict[workout.type] || 0) + 1;
-        return dict;
-    }, {});
-    // {"Cycling":5, "Running": 3}
-    // workouts.reduce((sum: number, workout)=> sum + workout.duration, 0);
-    // [["Cycling", 5], ["Running", "3"]] => [{"name": "Cycling", "value": 5, ...}]
-    return Object.entries(countByType).map(([name,value])=>({name, value}));
-  }, [workouts])
+  console.log(workouts);
 
   return (
-    <Container maxWidth="sm">
-      <Box sx={{width:"100%", height: 260}}>
-        <PieGraph data={graphData}/>
-      </Box>
-      {isLoading && <CircularProgress />}
-      {!isLoading && (
-        <List sx={{ width: "100%" }}>
-          {workouts.map((item) => (
-            <>
-              <ListItem key={item.duration}>
-                <ListItemButton onClick={handleDetail(item)}>
-                  <>
-                    <ListItemAvatar>
-                      <Avatar sx={{background: colorsMapping[item.type]}}>{iconsMapping[item.type]}</Avatar>
-                    </ListItemAvatar>
-                  </>
-                  <ListItemText primary={item.title} secondary={item.data} />
-                </ListItemButton>
-              </ListItem>
-              <Divider variant="inset" component="li" />
-            </>
-          ))}
-        </List>
-      )}
-      <Fab
-        color="primary"
-        aria-label="add"
-        sx={{ position: "fixed", bottom: 16, right: 16 }}
-        onClick={handleAdd}
-      >
-        <AddIcon />
-      </Fab>
+    <>
+      <Menu />
+      <Container maxWidth="sm">
+        {isLoading && <CircularProgress />}
+        {!isLoading && (
+          <>
+            <Stats workouts={workouts} />
+            <List sx={{ width: "100%" }}>
+              {workouts.map((item) => (
+                <>
+                  <ListItem key={item.duration}>
+                    <ListItemButton onClick={handleDetail(item)}>
+                      <>
+                        <ListItemAvatar>
+                          <Avatar sx={{ background: colorsMapping[item.type] }}>
+                            {iconsMapping[item.type]}
+                          </Avatar>
+                        </ListItemAvatar>
+                      </>
+                      <ListItemText
+                        primary={item.title}
+                        secondary={item.data}
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                  <Divider variant="inset" component="li" />
+                </>
+              ))}
+            </List>
+          </>
+        )}
+        <Fab
+          color="primary"
+          aria-label="add"
+          sx={{ position: "fixed", bottom: 16, right: 16 }}
+          onClick={handleAdd}
+        >
+          <AddIcon />
+        </Fab>
 
-      {isDialogOpen && dialogWorkout && (
-        <WorkoutDialog
-          workout={dialogWorkout}
-          save={handleSave}
-          remove={handleRemove}
-          close={handleClose}
-        />
-      )}
-    </Container>
+        {isDialogOpen && dialogWorkout && (
+          <WorkoutDialog
+            workout={dialogWorkout}
+            save={handleSave}
+            remove={handleRemove}
+            close={handleClose}
+          />
+        )}
+      </Container>
+    </>
   );
 };
 

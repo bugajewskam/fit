@@ -1,5 +1,5 @@
 export interface IWorkout {
-    id: number;
+    id?: number;
     title: string;
     description: string;
     type: IWorkoutsType; // tutaj możemy się różnic, ale lepiej nie :)

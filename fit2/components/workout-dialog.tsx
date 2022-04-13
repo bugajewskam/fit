@@ -18,7 +18,7 @@ import {
   useState,
 } from "react";
 
-import { IWorkout, IWorkoutsType } from "../pages/index";
+import { IWorkout, IWorkoutsType } from "../interface/interface";
 import { Card, Container, Grid, TextField } from "@mui/material";
 import produce from "immer";
 import Filter from "./filter";
@@ -37,7 +37,6 @@ interface IWorkoutDialogProps {
 
   close(): void;
 }
-
 
 export default function WorkoutDialog({
   workout,
@@ -76,7 +75,7 @@ export default function WorkoutDialog({
             <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
              {item.id? 'Edit workout': 'Add workout'}
             </Typography>
-            {item.id && (
+            {!!item.id && (
               <Button autoFocus color="inherit" onClick={() => remove(item)}>
                 delete
               </Button>
@@ -89,7 +88,6 @@ export default function WorkoutDialog({
         <Controller
           name={"type"}
           control={control}
-          //pozwala na wsadzanie MUI
           render={(props) => (
             <Filter
               onTabChange={props.field.onChange}
@@ -102,7 +100,6 @@ export default function WorkoutDialog({
             <Controller
               name={"title"}
               control={control}
-              //pozwala na wsadzanie MUI
               render={(props) => (
                 <TextField
                   label="Title"
@@ -117,7 +114,6 @@ export default function WorkoutDialog({
             <Controller
               name={"data"}
               control={control}
-              //pozwala na wsadzanie MUI
               render={(props) => (
                 <DateInput
                   date={props.field.value}
@@ -129,7 +125,6 @@ export default function WorkoutDialog({
             <Controller
               name={"duration"}
               control={control}
-              //pozwala na wsadzanie MUI
               render={(props) => (
                 <TextField
                   label="Duration"
@@ -150,7 +145,6 @@ export default function WorkoutDialog({
             <Controller
               name={"description"}
               control={control}
-              //pozwala na wsadzanie MUI
               render={(props) => (
                 <TextField
                   label="Description"
@@ -164,8 +158,8 @@ export default function WorkoutDialog({
                 />
               )}
             />
-
-            {/* {workout.id && (
+{/* 
+            {workout.id && (
               <input
                 hidden
                 {...register(`id`, {

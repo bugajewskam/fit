@@ -1,5 +1,5 @@
 import { IsInt, isNumber, IsString, MaxLength, MinLength } from "class-validator";
-import { IWorkout } from "../pages";
+import { IWorkout } from "../interface/interface";
 import { IWorkoutsType } from "./interface";
 
 export class Workout implements IWorkout {
