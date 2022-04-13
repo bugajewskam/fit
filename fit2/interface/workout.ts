@@ -8,19 +8,19 @@ export class Workout implements IWorkout {
 
   @IsString()
   @MinLength(1)
-  @MaxLength(255)
-  title
+  @MaxLength(255,{message:"Title is to long ;("})
+  title: string
 
   @MinLength(1)
-  description
+  description: string
 
   type: IWorkoutsType;
 
   @IsInt()
-  duration
+  duration: number
 
   @IsString()
-  data
+  data: string
   constructor(
     //id: number,
     title: string,

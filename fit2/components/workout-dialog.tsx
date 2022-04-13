@@ -110,6 +110,7 @@ export default function WorkoutDialog({
                   value={props.field.value}
                   onChange={props.field.onChange}
                   error={props.fieldState.invalid}
+                  helperText={props.fieldState.error?.message}
                 />
               )}
             />
@@ -136,6 +137,7 @@ export default function WorkoutDialog({
                   type={"number"}
                   value={props.field.value}
                   error={props.fieldState.invalid}
+                  helperText={props.fieldState.error?.message}
                   onChange={(event) => {
                     const value = event.target.value;
                     const v = Number(value) || value;
@@ -158,6 +160,7 @@ export default function WorkoutDialog({
                   value={props.field.value}
                   error={props.fieldState.invalid}
                   onChange={props.field.onChange}
+                  helperText={props.fieldState.error?.message}
                 />
               )}
             />
