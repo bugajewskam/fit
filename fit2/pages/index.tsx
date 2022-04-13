@@ -218,7 +218,9 @@ const Home: NextPage = () => {
         dict[workout.type] = (dict[workout.type] || 0) + 1;
         return dict;
     }, {});
+    // {"Cycling":5, "Running": 3}
     // workouts.reduce((sum: number, workout)=> sum + workout.duration, 0);
+    // [["Cycling", 5], ["Running", "3"]] => [{"name": "Cycling", "value": 5, ...}]
     return Object.entries(countByType).map(([name,value])=>({name, value}));
   }, [workouts])
 
@@ -231,11 +233,6 @@ const Home: NextPage = () => {
       {!isLoading && (
         <List sx={{ width: "100%" }}>
           {workouts.map((item) => (
-            // <ListItem key={item.id} disablePadding>
-            //   <ListItemButton onClick={handleDetail(item)}>
-            //     <ListItemText primary={item.title} />
-            //   </ListItemButton>
-            // </ListItem>
             <>
               <ListItem key={item.duration}>
                 <ListItemButton onClick={handleDetail(item)}>
