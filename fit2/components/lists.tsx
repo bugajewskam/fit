@@ -1,10 +1,5 @@
 import {
   List,
-  ListItem,
-  ListItemButton,
-  ListItemAvatar,
-  Avatar,
-  ListItemText,
   Divider,
 } from "@mui/material";
 import { IWorkout } from "../interface/interface";
