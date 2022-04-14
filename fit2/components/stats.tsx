@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { IWorkout } from "../interface/interface";
 import SwipeableViews from "react-swipeable-views";
-import {autoPlay} from "react-swipeable-views-utils";
+import { autoPlay } from "react-swipeable-views-utils";
 import { Box } from "@mui/material";
 import PieGraph from "./pie-chart";
 import moment from "moment";
@@ -9,9 +9,9 @@ import BarGraph from "./bar-chart";
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
 interface IStatsProps {
-    workouts: IWorkout[];
+  workouts: IWorkout[];
 }
-const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 export default function Stats({ workouts }: IStatsProps) {
   const graphData = useMemo(() => {
     const countByType = workouts.reduce(
@@ -32,10 +32,13 @@ export default function Stats({ workouts }: IStatsProps) {
 
   const barData = useMemo(() => {
     const now = moment();
-    const sumByDate = workouts.reduce((acc: { [key: string]: number }, item) => {
-      acc[item.data] = (acc[item.data] || 0) + item.duration;
-      return acc;
-    }, {});
+    const sumByDate = workouts.reduce(
+      (acc: { [key: string]: number }, item) => {
+        acc[item.data] = (acc[item.data] || 0) + item.duration;
+        return acc;
+      },
+      {}
+    );
     const weeklyStats = [];
     for (let i = 0; i <= 6; i++) {
       const day = now.clone();
@@ -58,16 +61,14 @@ export default function Stats({ workouts }: IStatsProps) {
     { key: "totalDuration", fill: "#FFBB28", name: "This week" },
   ];
 
-
   return (
     <AutoPlaySwipeableViews enableMouseEvents>
-      <Box sx={{ width: "100%", height: 280 }}>
+      <Box sx={{ width: "100%", height: 290 }}>
         <PieGraph data={graphData} />
       </Box>
-      <Box sx={{ width: "100%", height: 280 }}>
-        <BarGraph data={barData} bars={bars}/>
+      <Box sx={{ width: "100%", height: 290 }}>
+        <BarGraph data={barData} bars={bars} />
       </Box>
     </AutoPlaySwipeableViews>
   );
 }
-

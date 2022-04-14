@@ -5,21 +5,16 @@ import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import CloseIcon from "@mui/icons-material/Close";
-import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import { IWorkout, IWorkoutsType } from "../interface/interface";
-import { Card, Container, Grid, TextField } from "@mui/material";
-import produce from "immer";
+import { IWorkout } from "../interface/interface";
+import { Container, Grid, TextField } from "@mui/material";
 import Filter from "./filter";
 import DateInput from "./date-input";
 import { Controller, useForm } from "react-hook-form";
-import { IsDate, IsInt, IsString, Min, MinLength } from "class-validator";
 import { classValidatorResolver } from "@hookform/resolvers/class-validator";
 import { Workout } from "../interface/workout";
+import AlertDialog from "./dialog";
 
 interface IWorkoutDialogProps {
   workout: IWorkout;
@@ -38,6 +33,7 @@ export default function WorkoutDialog({
   save,
 }: IWorkoutDialogProps) {
   const [item, setItem] = useState<IWorkout | null>(null);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
   const { control, handleSubmit, formState, reset, register } =
     useForm<Workout>({
       mode: "onChange",
@@ -51,7 +47,7 @@ export default function WorkoutDialog({
   if (item === null) {
     return <></>;
   }
-
+  const handleDelete = (id: number) => () => setDeleteId(id);
   return (
     <Dialog fullScreen open onClose={close}>
       <form onSubmit={handleSubmit((data) => save(data))}>
@@ -66,16 +62,16 @@ export default function WorkoutDialog({
               <CloseIcon />
             </IconButton>
             <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-             {item.id? 'Edit workout': 'Add workout'}
+              {item.id ? "Edit workout" : "Add workout"}
             </Typography>
             {!!item.id && (
-              <Button autoFocus color="inherit" onClick={() => remove(item)}>
+              <Button autoFocus color="inherit" onClick={handleDelete(item.id)}>
                 delete
               </Button>
             )}
-          <Button autoFocus color="inherit" type={"submit"}>
-            save
-          </Button>
+            <Button autoFocus color="inherit" type={"submit"}>
+              save
+            </Button>
           </Toolbar>
         </AppBar>
         <Controller
@@ -110,7 +106,8 @@ export default function WorkoutDialog({
               render={(props) => (
                 <DateInput
                   date={props.field.value}
-                  handleChange={(date) => {props.field.onChange(date && date.format("YYYY-MM-DD"));
+                  handleChange={(date) => {
+                    props.field.onChange(date && date.format("YYYY-MM-DD"));
                   }}
                 />
               )}
@@ -151,7 +148,7 @@ export default function WorkoutDialog({
                 />
               )}
             />
-{/* 
+            {/* 
             {workout.id && (
               <input
                 hidden
@@ -163,6 +160,18 @@ export default function WorkoutDialog({
           </Grid>
         </Container>
       </form>
+      {deleteId && (
+        <AlertDialog
+          open={true}
+          text={"Are you sure you want to delete this workout?"}
+          title={"Delete workout"}
+          onClickYes={() => {
+            remove(item);
+            setDeleteId(null);
+          }}
+          onClickNo={() => setDeleteId(null)}
+        />
+      )}
     </Dialog>
   );
 }

@@ -1,8 +1,4 @@
-import {
-  CircularProgress,
-  Container,
-  Fab,
-} from "@mui/material";
+import { CircularProgress, Container, Fab } from "@mui/material";
 import produce from "immer";
 import type { NextPage } from "next";
 import { useEffect, useMemo, useState } from "react";
@@ -24,13 +20,6 @@ export const iconsMapping = {
   Cardio: <FitnessCenterIcon />,
 };
 
-export const colorsMapping = {
-  Cycling: "#0088FE",
-  Running: "#00C49F",
-  Cardio: "#FFBB28",
-};
-
-
 const api = new API();
 const Home: NextPage = () => {
   const [workouts, setWorkouts] = useState<IWorkout[]>([]);
@@ -46,7 +35,7 @@ const Home: NextPage = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleItemClick = (workout: IWorkout)  => {
+  const handleItemClick = (workout: IWorkout) => {
     setDialogOpen(true);
     setDialogWorkout(workout);
   };
@@ -108,7 +97,7 @@ const Home: NextPage = () => {
         {!isLoading && (
           <>
             <Stats workouts={workouts} />
-  <WorkoutsList workouts ={workouts} onItemClick={handleItemClick}/>
+            <WorkoutsList workouts={workouts} onItemClick={handleItemClick} />
           </>
         )}
         <Fab

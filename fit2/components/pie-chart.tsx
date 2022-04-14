@@ -1,6 +1,6 @@
 import React, { PureComponent, useState } from "react";
 import { PieChart, Pie, Sector, ResponsiveContainer, Cell } from "recharts";
-import { colorsMapping } from "../pages";
+import { colorsMapping } from "../utils/const";
 
 const renderActiveShape = (props) => {
   const RADIAN = Math.PI / 180;
@@ -78,7 +78,7 @@ const renderActiveShape = (props) => {
 export default function PieGraph({ data }) {
   const [activeIndex, setActiveIndex] = useState(0);
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ResponsiveContainer width="100%" height="90%">
       <PieChart width={400} height={400}>
         <Pie
           activeIndex={activeIndex}
@@ -90,11 +90,11 @@ export default function PieGraph({ data }) {
           outerRadius={80}
           fill="#8884d8"
           dataKey="value"
-          onMouseEnter={(_, index)=>setActiveIndex(index)}
+          onMouseEnter={(_, index) => setActiveIndex(index)}
         >
-        {data.map((entry, index) => (
-          <Cell key={`cell-${index}`} fill={colorsMapping[entry.name]} />
-        ))}
+          {data.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={colorsMapping[entry.name]} />
+          ))}
         </Pie>
       </PieChart>
     </ResponsiveContainer>
