@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "test":"jest",
+    "test": "jest",
     "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start",
@@ -16,6 +16,7 @@
     "@mui/icons-material": "^5.6.1",
     "@mui/material": "^5.6.1",
     "@mui/x-date-pickers": "^5.0.0-alpha.0",
+    "@testing-library/user-event": "^14.1.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
     "immer": "^9.0.12",

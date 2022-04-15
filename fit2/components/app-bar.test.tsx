@@ -4,7 +4,8 @@ import Menu from "./app-bar";
 
 describe('app-bar', () => {
     test('app bar', () => {
-      render (<Menu/>); 
-      expect(screen.getByText('BeFit')).toBeInTheDocument();
+      const context = render (<Menu/>); 
+      
+      expect(context.getByText('BeFit')).toBeInTheDocument();
     });
   });

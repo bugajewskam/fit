@@ -7,8 +7,8 @@ import {
 } from "@mui/material";
 import { useCallback } from "react";
 import { IWorkout, IWorkoutsType } from "../interface/interface";
-import { colorsMapping, iconsMapping } from "../pages";
-
+import {  iconsMapping } from "../pages";
+import { colorsMapping } from "../utils/const";
 interface IWorkoutItemProps {
   item: IWorkout;
   onClick: (item:IWorkout) => void;

@@ -13,6 +13,8 @@ import { IWorkout } from "../interface/interface";
 import Stats from "../components/stats";
 import WorkoutsList from "../components/lists";
 import { API } from "../data/api";
+import { DummyApi } from "../helper/dummyApi";
+import { WorkoutContext } from "../context/workout-context";
 
 export const iconsMapping = {
   Cycling: <DirectionsBikeIcon />,
@@ -90,7 +92,7 @@ const Home: NextPage = () => {
   console.log(workouts);
 
   return (
-    <>
+    <><WorkoutContext.Provider value={{save: handleSave, remove: handleRemove, close: handleClose}}>
       <Menu />
       <Container maxWidth="sm">
         {isLoading && <CircularProgress />}
@@ -112,12 +114,10 @@ const Home: NextPage = () => {
         {isDialogOpen && dialogWorkout && (
           <WorkoutDialog
             workout={dialogWorkout}
-            save={handleSave}
-            remove={handleRemove}
-            close={handleClose}
           />
         )}
       </Container>
+      </WorkoutContext.Provider>
     </>
   );
 };

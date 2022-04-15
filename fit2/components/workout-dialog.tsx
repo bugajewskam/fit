@@ -5,7 +5,7 @@ import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import CloseIcon from "@mui/icons-material/Close";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 
 import { IWorkout } from "../interface/interface";
 import { Container, Grid, TextField } from "@mui/material";
@@ -15,22 +15,13 @@ import { Controller, useForm } from "react-hook-form";
 import { classValidatorResolver } from "@hookform/resolvers/class-validator";
 import { Workout } from "../interface/workout";
 import AlertDialog from "./dialog";
+import { WorkoutContext } from "../context/workout-context";
 
 interface IWorkoutDialogProps {
   workout: IWorkout;
-
-  save(workout: IWorkout): void;
-
-  remove(workout: IWorkout): void;
-
-  close(): void;
 }
-
 export default function WorkoutDialog({
-  workout,
-  close,
-  remove,
-  save,
+  workout
 }: IWorkoutDialogProps) {
   const [item, setItem] = useState<IWorkout | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -42,12 +33,15 @@ export default function WorkoutDialog({
         return workout;
       }, [workout]),
     });
+    const {save, remove, close} = useContext(WorkoutContext);
   useEffect(() => setItem(workout), [workout]);
 
   if (item === null) {
     return <></>;
   }
-  const handleDelete = (id: number) => () => setDeleteId(id);
+  const handleDelete= () => setDeleteId(workout.id);
+
+
   return (
     <Dialog fullScreen open onClose={close}>
       <form onSubmit={handleSubmit((data) => save(data))}>
@@ -65,7 +59,7 @@ export default function WorkoutDialog({
               {item.id ? "Edit workout" : "Add workout"}
             </Typography>
             {!!item.id && (
-              <Button autoFocus color="inherit" onClick={handleDelete(item.id)}>
+              <Button autoFocus color="inherit" onClick={handleDelete}>
                 delete
               </Button>
             )}
