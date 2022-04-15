@@ -21,7 +21,7 @@ export default function BarGraph({ data, bars }) {
         <Tooltip />
         <Legend />
         {bars.map((bar) => (
-          <Bar dataKey={bar.key} fill={bar.fill} name={bar.name} />
+          <Bar key={bar.key} dataKey={bar.key} fill={bar.fill} name={bar.name} />
         ))}
       </BarChart>
     </ResponsiveContainer>
