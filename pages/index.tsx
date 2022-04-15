@@ -22,7 +22,7 @@ export const iconsMapping = {
   Cardio: <FitnessCenterIcon />,
 };
 
-const api = new API();
+const api = new DummyApi();
 const Home: NextPage = () => {
   const [workouts, setWorkouts] = useState<IWorkout[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
