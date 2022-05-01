@@ -2,6 +2,7 @@ import { IWorkout } from "../interface/interface";
 
 interface IWorkoutApi {
     list: () => Promise<IWorkout[]>;
+    apiUrl : string
     create: (workout: IWorkout) => Promise<IWorkout>;
     update: (workout: IWorkout) => Promise<IWorkout>;
     delete: (workout: IWorkout) => Promise<void>;
@@ -15,18 +16,23 @@ interface IWorkoutApi {
       },
     });
   };
+
   export class API implements IWorkoutApi {
+    apiUrl: string;
+    constructor(apiUrl: string){
+    	this.apiUrl=apiUrl;
+    }
     async list() {
-      return await (await fetch("/workouts/")).json();
+      return await (await fetch(`${this.apiUrl}/workouts/`)).json();
     }
   
     async delete(workout: IWorkout) {
-      const result = await fetch(`/workouts/${workout.id}`, { method: "DELETE" });
+      const result = await fetch(`${this.apiUrl}/workouts/${workout.id}`, { method: "DELETE" });
     }
   
     async update(workout: IWorkout) {
       const newWorkout = await postJson(
-        `/workouts/${workout.id}`,
+        `${this.apiUrl}/workouts/${workout.id}`,
         "PATCH",
         workout
       );
@@ -35,9 +41,8 @@ interface IWorkoutApi {
   
     async create(workout: IWorkout) {
       const newWorkout = await (
-        await postJson(`/workouts/`, "POST", workout)
+        await postJson(`${this.apiUrl}/workouts/`, "POST", workout)
       ).json();
       return newWorkout;
     }
   }
-  

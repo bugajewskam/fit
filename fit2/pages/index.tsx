@@ -22,7 +22,7 @@ export const iconsMapping = {
   Cardio: <FitnessCenterIcon />,
 };
 
-const api = new API();
+const api = new API("/api/")
 const Home: NextPage = () => {
   const [workouts, setWorkouts] = useState<IWorkout[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
@@ -88,17 +88,20 @@ const Home: NextPage = () => {
       handleClose();
     });
   };
+  
 
   console.log(workouts);
 
   return (
     <><WorkoutContext.Provider value={{save: handleSave, remove: handleRemove, close: handleClose}}>
       <Menu />
+      
       <Container maxWidth="sm">
         {isLoading && <CircularProgress />}
         {!isLoading && (
           <>
             <Stats workouts={workouts} />
+            <div> {process.env.NEXT_PUBLIC_MOCK_DATA} </div>
             <WorkoutsList workouts={workouts} onItemClick={handleItemClick} />
           </>
         )}
@@ -107,15 +110,15 @@ const Home: NextPage = () => {
           aria-label="add"
           sx={{ position: "fixed", bottom: 16, right: 16 }}
           onClick={handleAdd}
-        >
+          >
           <AddIcon />
         </Fab>
 
         {isDialogOpen && dialogWorkout && (
           <WorkoutDialog
-            workout={dialogWorkout}
+          workout={dialogWorkout}
           />
-        )}
+          )}
       </Container>
       </WorkoutContext.Provider>
     </>
